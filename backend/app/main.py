@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import func as sa_func
+from sqlalchemy import Date, func as sa_func
 from sqlalchemy.orm import Session, joinedload
 
 from .database import Base, engine, get_db
@@ -98,13 +98,23 @@ def dashboard(db: Session = Depends(get_db)):
 
     today = datetime.now(timezone.utc).date()
     start_date = today - timedelta(days=6)
+    is_sqlite = engine.dialect.name == "sqlite"
+    date_col = (
+        sa_func.strftime("%Y-%m-%d", Order.created_at)
+        if is_sqlite
+        else sa_func.to_char(Order.created_at, "YYYY-MM-DD")
+    )
     trend_rows = (
         db.query(
-            sa_func.strftime("%Y-%m-%d", Order.created_at).label("day"),
+            date_col.label("day"),
             sa_func.coalesce(sa_func.sum(Order.total_amount), 0.0).label("revenue"),
         )
         .filter(Order.status != "cancelled")
-        .filter(sa_func.date(Order.created_at) >= start_date)
+        .filter(
+            sa_func.date(Order.created_at) >= start_date
+            if is_sqlite
+            else Order.created_at >= start_date
+        )
         .group_by("day")
         .all()
     )

@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
@@ -11,7 +12,7 @@ from ..database import get_db
 from ..models import User
 from ..schemas import TokenResponse, UserCreate, UserLogin, UserResponse
 
-JWT_SECRET_KEY = "stockwell-secret-key-change-in-production"
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "stockwell-secret-key-change-in-production")
 JWT_ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_HOURS = 24
 

@@ -34,3 +34,7 @@ services:
         fromDatabase:
           name: inventory-db
           property: database
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: ENVIRONMENT
+        value: production
