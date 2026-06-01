@@ -1,0 +1,79 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - complementary [ref=e4]:
+      - generic [ref=e10]:
+        - generic [ref=e11]: Operations
+        - generic [ref=e12]: Stockwell.
+      - navigation [ref=e13]:
+        - generic [ref=e14]: Navigate
+        - link "01 Dashboard" [ref=e15] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e16]: "01"
+          - img [ref=e18]
+          - generic [ref=e20]: Dashboard
+          - generic [ref=e21]: →
+        - link "02 Products" [ref=e22] [cursor=pointer]:
+          - /url: /products
+          - generic [ref=e23]: "02"
+          - img [ref=e25]
+          - generic [ref=e27]: Products
+          - generic [ref=e28]: →
+        - link "03 Customers" [ref=e29] [cursor=pointer]:
+          - /url: /customers
+          - generic [ref=e30]: "03"
+          - img [ref=e32]
+          - generic [ref=e34]: Customers
+          - generic [ref=e35]: →
+        - link "04 Orders" [ref=e36] [cursor=pointer]:
+          - /url: /orders
+          - generic [ref=e37]: "04"
+          - img [ref=e39]
+          - generic [ref=e41]: Orders
+          - generic [ref=e42]: →
+      - generic [ref=e44]:
+        - generic [ref=e45]: System
+        - generic [ref=e46]: All services operational
+    - main [ref=e48]:
+      - generic [ref=e49]:
+        - generic [ref=e51]:
+          - generic [ref=e52]: Overview · Monday, June 1, 2026
+          - heading "Today at a glance" [level=1] [ref=e53]:
+            - text: Today at
+            - emphasis [ref=e54]: a glance
+          - paragraph [ref=e55]: A real-time snapshot of inventory, customers, and orders moving through the system.
+        - generic [ref=e56]:
+          - generic [ref=e57]:
+            - generic [ref=e58]:
+              - generic [ref=e59]: "01"
+              - text: Products
+            - generic [ref=e60]: —
+            - generic [ref=e61]: Active SKUs in catalog
+          - generic [ref=e62]:
+            - generic [ref=e63]:
+              - generic [ref=e64]: "02"
+              - text: Customers
+            - generic [ref=e65]: —
+            - generic [ref=e66]: Registered accounts
+          - generic [ref=e67]:
+            - generic [ref=e68]:
+              - generic [ref=e69]: "03"
+              - text: Orders
+            - generic [ref=e70]: —
+            - generic [ref=e71]: All-time order count
+          - generic [ref=e72]:
+            - generic [ref=e73]:
+              - generic [ref=e74]: "04"
+              - text: Low stock
+            - generic [ref=e75]: "0"
+            - generic [ref=e76]: Inventory healthy
+        - generic [ref=e77]:
+          - generic [ref=e78]:
+            - generic [ref=e79]:
+              - generic [ref=e80]: Inventory alert
+              - heading "Low stock — quantity ≤ 5" [level=2] [ref=e81]
+            - generic [ref=e82]: 0 items
+          - generic [ref=e83]:
+            - generic [ref=e84]: ✓
+            - generic [ref=e85]: Everything's stocked
+            - paragraph [ref=e86]: No products are at or below the threshold.
+  - region "Notifications"
