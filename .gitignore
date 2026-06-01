@@ -28,5 +28,10 @@ Thumbs.db
 *.swp
 *.swo
 
+# Playwright
+.playwright-mcp/
+*.png
+*.md
+
 # Environment
 .env
