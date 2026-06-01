@@ -363,6 +363,7 @@ function Orders() {
     finally { setLoading(false); }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { loadAll(); }, []);
 
   const filtered = useMemo(() => {

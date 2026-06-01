@@ -4,10 +4,7 @@ import { getDashboard, createProduct, createCustomer } from '../services/api';
 import { useToast } from '../components/Toast';
 import Modal from '../components/Modal';
 import { SkeletonCards, SkeletonChart, SkeletonList } from '../components/Skeleton';
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  LineChart, Line, PieChart, Pie, Cell, Legend,
-} from 'recharts';
+import { Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 
 const TODAY = new Date().toLocaleDateString('en-US', {
   weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
@@ -161,26 +158,13 @@ function Dashboard() {
 
   const lowStock = data?.low_stock_products || [];
   const recentOrders = data?.recent_orders || [];
-  const revenueTrend = data?.revenue_trend || [];
-  const ordersByStatus = data?.orders_by_status || {};
-
-  const inventoryChartData = data
-    ? [
-        { name: 'Products', value: data.total_products ?? 0, fill: '#6366f1' },
-        { name: 'Customers', value: data.total_customers ?? 0, fill: '#fbbf24' },
-        { name: 'Orders', value: data.total_orders ?? 0, fill: '#16a34a' },
-      ]
-    : [];
 
   const pieData = useMemo(() => {
-    return Object.entries(ordersByStatus)
+    const statuses = data?.orders_by_status || {};
+    return Object.entries(statuses)
       .filter(([, v]) => Number(v) > 0)
       .map(([k, v]) => ({ name: k.charAt(0).toUpperCase() + k.slice(1), value: Number(v), key: k }));
-  }, [ordersByStatus]);
-
-  const lineData = useMemo(() => {
-    return revenueTrend.map((p) => ({ date: fmtDateShort(p.date), revenue: Number(p.revenue || 0) }));
-  }, [revenueTrend]);
+  }, [data?.orders_by_status]);
 
   return (
     <>
