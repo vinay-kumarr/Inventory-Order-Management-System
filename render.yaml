@@ -1,0 +1,36 @@
+# Render Blueprint - Infrastructure as Code
+# https://render.com/docs/blueprint-spec
+
+databases:
+  - name: inventory-db
+    databaseName: inventory_db
+    user: postgres
+    plan: free
+    region: oregon
+
+services:
+  - type: web
+    name: inventory-backend
+    env: docker
+    region: oregon
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    branch: main
+    healthCheckPath: /
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: inventory-db
+          property: connectionString
+      - key: POSTGRES_USER
+        fromDatabase:
+          name: inventory-db
+          property: user
+      - key: POSTGRES_PASSWORD
+        fromDatabase:
+          name: inventory-db
+          property: password
+      - key: POSTGRES_DB
+        fromDatabase:
+          name: inventory-db
+          property: database
