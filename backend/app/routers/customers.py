@@ -1,6 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
-from typing import List
 
 from ..database import get_db
 from ..models import Customer, Order
@@ -29,9 +28,26 @@ def create_customer(payload: CustomerCreate, db: Session = Depends(get_db)):
     return customer
 
 
-@router.get("/", response_model=List[CustomerResponse])
-def list_customers(db: Session = Depends(get_db)):
-    return db.query(Customer).order_by(Customer.id.desc()).all()
+@router.get("/")
+def list_customers(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=1000),
+    db: Session = Depends(get_db),
+):
+    total = db.query(Customer).count()
+    items = (
+        db.query(Customer)
+        .order_by(Customer.id.desc())
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+    return {
+        "items": [CustomerResponse.model_validate(c) for c in items],
+        "total": total,
+        "skip": skip,
+        "limit": limit,
+    }
 
 
 @router.get("/{customer_id}", response_model=CustomerResponse)

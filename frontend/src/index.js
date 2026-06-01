@@ -4,14 +4,17 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import './App.css';
 import { ToastProvider } from './components/Toast';
+import { DarkModeProvider } from './DarkMode';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-      <ToastProvider>
-        <App />
-      </ToastProvider>
+      <DarkModeProvider>
+        <ToastProvider>
+          <App />
+        </ToastProvider>
+      </DarkModeProvider>
     </BrowserRouter>
   </React.StrictMode>
 );

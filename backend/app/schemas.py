@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
@@ -144,8 +144,58 @@ class LowStockProduct(BaseModel):
     quantity: int
 
 
+class RecentOrder(BaseModel):
+    id: int
+    customer_name: str
+    total_amount: float
+    status: str
+    created_at: datetime
+
+
+class RevenuePoint(BaseModel):
+    date: str
+    revenue: float
+
+
 class DashboardResponse(BaseModel):
     total_products: int
     total_customers: int
     total_orders: int
+    total_revenue: float = 0.0
     low_stock_products: List[LowStockProduct] = []
+    orders_by_status: Dict[str, int] = {}
+    recent_orders: List[RecentOrder] = []
+    revenue_trend: List[RevenuePoint] = []
+
+
+# ---------- Auth ----------
+class UserCreate(BaseModel):
+    email: EmailStr
+    password: str = Field(..., min_length=6, max_length=128)
+    full_name: str = Field(..., min_length=1, max_length=255)
+
+    @field_validator("full_name")
+    @classmethod
+    def not_blank(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("must not be empty")
+        return v.strip()
+
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+
+
+class UserResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    email: EmailStr
+    full_name: str
+    created_at: datetime

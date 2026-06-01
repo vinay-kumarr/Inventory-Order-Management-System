@@ -1,6 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
-from typing import List
 
 from ..database import get_db
 from ..models import Product, OrderItem
@@ -30,9 +29,26 @@ def create_product(payload: ProductCreate, db: Session = Depends(get_db)):
     return product
 
 
-@router.get("/", response_model=List[ProductResponse])
-def list_products(db: Session = Depends(get_db)):
-    return db.query(Product).order_by(Product.id.desc()).all()
+@router.get("/")
+def list_products(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=1000),
+    db: Session = Depends(get_db),
+):
+    total = db.query(Product).count()
+    items = (
+        db.query(Product)
+        .order_by(Product.id.desc())
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+    return {
+        "items": [ProductResponse.model_validate(p) for p in items],
+        "total": total,
+        "skip": skip,
+        "limit": limit,
+    }
 
 
 @router.get("/{product_id}", response_model=ProductResponse)

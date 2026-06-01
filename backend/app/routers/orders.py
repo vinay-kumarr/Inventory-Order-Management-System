@@ -1,6 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session, joinedload
-from typing import List
 
 from ..database import get_db
 from ..models import Customer, Order, OrderItem, Product
@@ -96,15 +95,22 @@ def create_order(payload: OrderCreate, db: Session = Depends(get_db)):
     return order
 
 
-@router.get("/", response_model=List[OrderListResponse])
-def list_orders(db: Session = Depends(get_db)):
+@router.get("/")
+def list_orders(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=1000),
+    db: Session = Depends(get_db),
+):
+    total = db.query(Order).count()
     orders = (
         db.query(Order)
         .options(joinedload(Order.customer), joinedload(Order.items))
         .order_by(Order.id.desc())
+        .offset(skip)
+        .limit(limit)
         .all()
     )
-    return [
+    items = [
         OrderListResponse(
             id=o.id,
             customer_id=o.customer_id,
@@ -116,6 +122,12 @@ def list_orders(db: Session = Depends(get_db)):
         )
         for o in orders
     ]
+    return {
+        "items": items,
+        "total": total,
+        "skip": skip,
+        "limit": limit,
+    }
 
 
 @router.get("/{order_id}", response_model=OrderResponse)
@@ -131,6 +143,48 @@ def get_order(order_id: int, db: Session = Depends(get_db)):
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Order with id {order_id} not found",
         )
+    return order
+
+
+@router.patch("/{order_id}/status", response_model=OrderResponse)
+def update_order_status(order_id: int, payload: dict, db: Session = Depends(get_db)):
+    VALID_STATUSES = {"confirmed", "shipped", "delivered", "cancelled"}
+    new_status = payload.get("status", "").lower()
+    if new_status not in VALID_STATUSES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid status. Must be one of: {', '.join(sorted(VALID_STATUSES))}",
+        )
+
+    order = db.query(Order).filter(Order.id == order_id).first()
+    if not order:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Order with id {order_id} not found",
+        )
+
+    VALID_TRANSITIONS = {
+        "confirmed": {"shipped", "cancelled"},
+        "shipped": {"delivered", "cancelled"},
+        "delivered": set(),
+        "cancelled": set(),
+    }
+
+    if new_status not in VALID_TRANSITIONS.get(order.status, set()):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Cannot transition from '{order.status}' to '{new_status}'",
+        )
+
+    order.status = new_status
+    db.commit()
+
+    order = (
+        db.query(Order)
+        .options(joinedload(Order.customer), joinedload(Order.items).joinedload(OrderItem.product))
+        .filter(Order.id == order_id)
+        .first()
+    )
     return order
 
 
